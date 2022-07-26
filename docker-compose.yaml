@@ -10,9 +10,10 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - '5432:5432'
-    volumes: 
+    volumes:
       - ./db-data:/var/lib/postgresql/data
-      # - ./db/scripts/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./db/scripts/create-schema.sql:/docker-entrypoint-initdb.d/10-create-schema.sql
+      - ./db/scripts/tables-datafill.sql:/docker-entrypoint-initdb.d/20-tables-datafill.sql
   api:
     build:
       context: .
@@ -31,3 +32,19 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - db
+    links:
+      - db:db
+    ports:
+      - '16543:80'
+    env_file:
+      - ./.env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin

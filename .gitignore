@@ -36,6 +36,7 @@ lerna-debug.log*
 
 # DB data
 /db-data
+/pgadmin-data
 
 # .env files
 .env

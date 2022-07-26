@@ -10,11 +10,10 @@ This is my solution proposal for the Tyba BE Engineer Test. More details regardi
 
 ### Pre-requisistes
 
-Install the previous tools for the appropriate execution of the project:
+Install the following tools for the appropriate execution of the project:
 
 - NodeJS (or nvm)
 - Docker
-- pgAdmin or any other DB client (for executing scripts on `./db/scripts` and managing data with ease).
 
 ### Dependencies
 
@@ -24,15 +23,22 @@ Install the project dependencies via npm with the command:
 
 Run the app running the command:
 
-1. Run `docker-compose up -d` for deploying service containers: DB, and app.
-2. On pgAdmin, create the connection with the database credentials and options set on the `./.env` file.
-3. Run the DB scripts that are located in `./db/scripts` on pgAdmin (or any other DB client compatible with PostgreSQL)
-   - Run `./db/scripts/create-schema.sql`
-   - Run `./db/scripts/tables-datafill.sql`
+1. Run `docker compose up -d` (or the legacy command `docker-compose up -d`) for deploying service containers: DB, app, and pgAdmin4.
+2. Run the DB scripts that are located in `./db/scripts` on pgAdmin web client (or any other DB client compatible with PostgreSQL).
+
+   - Open the pgAdmin4 web client on any web browser using the `http://localhost:16543/` URL.
+   - Log-in with credentials (email, and password) defined on the `./.env` file.
+   - Create the connection with the database credentials and options set on the `./.env` file. **IMPORTANT: Use the literal string `db` as hostname/address when setting up the connecting to the DB.**.
+   - Run the `./db/scripts/create-schema.sql` script on pgAdmin4 web client.
+   - Run the `./db/scripts/tables-datafill.sql` script on pgAdmin4 web client.
 
 > **Note:** For dropping the schema or deleting the values on the tables, you can find the respective script on the `./db/scripts/drop-schema.sql` file.
 
 The app should be up and running after the command execution.
+
+To shutdown the services deployed on Docker run:
+
+1. Run `docker compose down` (or the legacy command `docker-compose down`)
 
 ### Testing
 
@@ -40,7 +46,7 @@ The app should be up and running after the command execution.
 
 For running the e2e tests, which expose some API tests considered for the project, execute the command:
 
-> `npm run test:e2e`
+`npm run test:e2e`
 
 ## Context
 

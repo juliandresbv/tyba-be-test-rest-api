@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users_token (
 
 -- Create transactions table
 CREATE TABLE IF NOT EXISTS transactions (
-  id int NOT NULL,
+  id serial NOT NULL,
   user_email varchar(80) NOT NULL,
   value varchar(250) NOT NULL,
   PRIMARY KEY (id) --,

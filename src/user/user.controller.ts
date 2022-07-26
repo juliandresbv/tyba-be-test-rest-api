@@ -11,6 +11,8 @@ import { JwtAuthGuard } from '../auth/providers/jwt-auth.guard';
 import { TransactionService } from '../transaction/transaction.service';
 import { UserDto } from './dtos/user.dto';
 import { UserService } from './user.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiParam } from '@nestjs/swagger';
 
 @Controller('users')
 export class UserController {
@@ -20,6 +22,32 @@ export class UserController {
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
   ) {}
+
+  /**
+   * @description -- getUserTransactions get the user transactions (if authorized)
+   * @param id -- user id
+   * @returns -- the user transactions
+   */
+  @Get('/:id/transactions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('token')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    example: 1,
+  })
+  async getUserTransactions(
+    @Param('id')
+    id: UserDto['id'],
+  ) {
+    const foundUser = await this.userService.getUser(id);
+
+    if (!foundUser) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.transactionService.getUserTransactions(foundUser.email);
+  }
 
   /*
   * Further work on User CRUD services
@@ -53,16 +81,4 @@ export class UserController {
     return this.userService.deleteUser(email);
   }
   */
-
-  @Get('/:id/transactions')
-  @UseGuards(JwtAuthGuard)
-  async getUserTransactions(@Param('id') id: UserDto['id']) {
-    const foundUser = await this.userService.getUser(id);
-
-    if (!foundUser) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    return this.transactionService.getUserTransactions(foundUser.email);
-  }
 }

@@ -3,14 +3,31 @@ services:
   db:
     image: postgres
     restart: always
+    env_file:
+      - ./.env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - '5432:5432'
     volumes: 
       - ./db-data:/var/lib/postgresql/data
-      - ./db/scripts/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-#volumes:
-  #db:
-    #driver: local
+      # - ./db/scripts/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - PORT=${PORT}
+      - DB_HOST=db
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    links:
+      - db:db
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

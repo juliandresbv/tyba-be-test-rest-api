@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('/v1');
+  app.setGlobalPrefix('api/v1');
 
   const apiDocsConfig = new DocumentBuilder()
     .setTitle('Tyba BE Engineer Test -- REST API')
@@ -23,7 +23,7 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, apiDocsConfig);
-  SwaggerModule.setup('/v1/docs', app, document, {
+  SwaggerModule.setup('api/v1/docs', app, document, {
     explorer: true,
     swaggerOptions: {
       showRequestDuration: true,

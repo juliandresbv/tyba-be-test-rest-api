@@ -20,8 +20,8 @@ export class FourSquareGateway {
         `https://api.foursquare.com/${version}/${generalApiName}/${specificApiName}`,
       );
 
-      for (const [key, value] of Object.entries(args)) {
-        baseUrl.searchParams.append(key, value as string);
+      for (const [key, value] of Object.entries(args) as [string, string][]) {
+        baseUrl.searchParams.append(key, value);
       }
 
       const result = await this.httpService
@@ -35,7 +35,7 @@ export class FourSquareGateway {
       if (result?.status < 200 || result?.status > 299) {
         throw new HttpException(
           `API Error: ${result?.data}`,
-          HttpStatus.NOT_FOUND,
+          HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 

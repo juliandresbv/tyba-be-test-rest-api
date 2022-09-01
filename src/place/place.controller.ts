@@ -2,6 +2,7 @@ import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/providers/jwt-auth.guard';
 import { PlaceService } from './place.service';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+
 @Controller('places')
 export class PlaceController {
   constructor(

@@ -1,18 +1,21 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Inject,
   Param,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/providers/jwt-auth.guard';
 import { TransactionService } from '../transaction/transaction.service';
 import { UserDto } from './dtos/user.dto';
 import { UserService } from './user.service';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { ApiParam } from '@nestjs/swagger';
+import { RegisterUserDto } from './dtos/register-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -22,6 +25,17 @@ export class UserController {
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
   ) {}
+
+  /**
+   * @description -- register registers a new user
+   * @param -- user to register
+   * @returns -- registered user
+   */
+  @Post()
+  @ApiBody({ type: RegisterUserDto })
+  async register(@Body() user: RegisterUserDto) {
+    return this.userService.register(user);
+  }
 
   /**
    * @description -- getUserTransactions get the user transactions (if authorized)
@@ -36,17 +50,8 @@ export class UserController {
     type: Number,
     example: 1,
   })
-  async getUserTransactions(
-    @Param('id')
-    id: UserDto['id'],
-  ) {
-    const foundUser = await this.userService.getUser(id);
-
-    if (!foundUser) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    return this.transactionService.getUserTransactions(foundUser.email);
+  async getUserTransactions(@Param('id') id: UserDto['id']) {
+    return this.transactionService.getUserTransactions(id);
   }
 
   /*

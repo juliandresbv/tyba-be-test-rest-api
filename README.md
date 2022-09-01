@@ -12,23 +12,20 @@ This is my solution proposal for the Tyba BE Engineer Test. More details regardi
 
 Install the following tools for the appropriate execution of the project:
 
-- NodeJS (or nvm)
+- NodeJS
 - Docker
 
-### Dependencies
+### Running the app
 
-Install the project dependencies via npm with the command:
+Run the following commands to run the app:
 
-`npm i`
+1. Install the project dependencies using `npm install`
+2. Run `docker compose up -d` (or the legacy command `docker-compose up -d`) for deploying service containers: DB, app, and pgAdmin4.
+3. Run the DB scripts that are located in `./db/scripts` on pgAdmin web client (or any other DB client compatible with PostgreSQL).
 
-Run the app running the command:
-
-1. Run `docker compose up -d` (or the legacy command `docker-compose up -d`) for deploying service containers: DB, app, and pgAdmin4.
-2. Run the DB scripts that are located in `./db/scripts` on pgAdmin web client (or any other DB client compatible with PostgreSQL).
-
-   - Open the pgAdmin4 web client on any web browser using the `http://localhost:16543/` URL.
+   - Open the pgAdmin4 web client on any web browser using the `http://localhost:16543` URL.
    - Log-in with credentials (email, and password) defined on the `./.env` file.
-   - Create the connection with the database credentials and options set on the `./.env` file. **IMPORTANT: Use the literal string `db` as hostname/address when setting up the connecting to the DB.**.
+   - Create the connection with the database credentials and options set on the `./.env` file. **IMPORTANT: Use the literal string `db` as hostname/address when setting up the connecting to the DB**.
    - Run the `./db/scripts/create-schema.sql` script on pgAdmin4 web client.
    - Run the `./db/scripts/tables-datafill.sql` script on pgAdmin4 web client.
 
@@ -48,13 +45,15 @@ For running the e2e tests, which expose some API tests considered for the projec
 
 `npm run test:e2e`
 
+> **Note:** Docker service containers must be up and running for running e2e tests.
+
 ## Context
 
 ### API design
 
 The API routes are defined below:
 
-- `/v1/auth/register (POST):` Endpoint for registering a new user.
+- `/api/v1/auth/register (POST):` Endpoint for registering a new user.
 
   - Body:
 
@@ -66,7 +65,7 @@ The API routes are defined below:
     }
     ```
 
-- `/v1/auth/login (POST):` Endpoint to log-in a user on the API.
+- `/api/v1/auth/login (POST):` Endpoint to log-in a user on the API.
 
   - Body:
 
@@ -77,7 +76,7 @@ The API routes are defined below:
     }
     ```
 
-- `/v1/auth/logout (POST):` Endpoint to login-out a user on the API.
+- `/api/v1/auth/logout (POST):` Endpoint to login-out a user on the API.
 
   - Headers:
 
@@ -87,7 +86,7 @@ The API routes are defined below:
     }
     ```
 
-- `/v1/users/:id/transactions (GET):` Endpoint for getting the transactions history from an user.
+- `/api/v1/users/:id/transactions (GET):` Endpoint for getting the transactions history from an user.
 
   - Params:
 
@@ -105,7 +104,7 @@ The API routes are defined below:
     }
     ```
 
-- `/v1/places (GET):` Endpoint for getting the transactions history from a user.
+- `/api/v1/places (GET):` Endpoint for getting nearby restaurants with given location (latitude & longitude).
 
   - Query params:
 
@@ -125,10 +124,6 @@ The API routes are defined below:
     ```
 
 ### Database
-
-#### Scripts
-
-The database definition and data-fill SQL scripts can be found on the `./db/scripts` folder.
 
 #### Entities-Relations design
 
@@ -191,6 +186,10 @@ As shown in the image, the database schema is composed of the following entities
 
 > **Note:** The foreign keys definition can be found on the `./db/scripts/create-schema.sql` script, but they were not included for simplicity and consistencies-issues avoidance.
 
+#### Scripts
+
+The database definition and data-fill SQL scripts can be found on the `./db/scripts` folder.
+
 ### About external data providers
 
 #### Data provider
@@ -207,13 +206,13 @@ I want to mention some special points about the external data provider service i
 
 I decided to implement an additional layer to access and request nearby restaurants data with FourSquare on behalf of:
 
-- `Standard API entry-point:`
+- Standard API entry-point:
 
 Providing a standard entry-point to the FourSquare API is useful because it can be re-used depending on future use-cases.
 
 Such implementation can be found on the `./providers/apis/foursquare_api/foursquare.gateway.ts` file. The `request` function is a normalized process that depends on the use-case provider that takes the API metadata and its args, then it shapes the requests with those parameters.
 
-- `Use-case-based requests`:
+- Use-case-based requests:
 
 For the `nearby restaurants` use case, the provider in charge of fulfilling such request is the `./providers/apis/foursquare_api/places_search/places_search.provider.ts` file. This file handles the specific logic for consuming the Places Search API via the FourSqureGateway class.
 
@@ -229,12 +228,12 @@ Personally, I find this framework as one of my favorite frameworks to define bac
 
 ## Additional considerations
 
+### API docs
+
+The API implements Swagger as visual API documentation that can be used from the following URL on any web browser `http://localhost:3000/v1/docs`.
+
 ### Secrets
 
 As a security measure, secrets are stored outside the app execution environment. The secret definition can be defined on a `./.env` file at the root of the project.
 
 An examaple about how a `./.env` file might be defined is located on the `./.env.exmaple` file.
-
-### API docs
-
-The API implements Swagger as visual API documentation that can be used from the following URL on any web browser `http://localhost:3000/v1/docs`.

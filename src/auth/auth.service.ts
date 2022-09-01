@@ -1,57 +1,32 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserService } from '../user/user.service';
 import { Repository } from 'typeorm';
 import { UserAuth } from './entities/user-auth.entity';
-import { hash, compare } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { UserDto } from '../user/dtos/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './entities/user-token.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
     @InjectRepository(UserAuth)
     private readonly usersAuthRepository: Repository<UserAuth>,
     @InjectRepository(UserToken)
     private readonly usersTokenRepository: Repository<UserToken>,
 
-    @Inject(UserService)
-    private readonly userService: UserService,
     @Inject(JwtService)
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(user: UserDto) {
-    try {
-      const createdUser = await this.userService.createUser({
-        email: user.email,
-        firstName: user.firstName,
-      });
-
-      const hashedPassword = await hash(user.password, 7);
-      await this.usersAuthRepository.save(
-        new UserAuth({
-          userEmail: user.email,
-          password: hashedPassword,
-        }),
-      );
-
-      return {
-        id: createdUser.id,
-        email: createdUser.email,
-        firstName: createdUser.firstName,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async login(credentials: Partial<UserDto>) {
     try {
-      const foundUser = await this.userService.getUserByEmail(
-        credentials.email,
-      );
+      const foundUser = await this.usersRepository.findOneBy({
+        email: credentials.email,
+      });
       const foundUserAuth = await this.usersAuthRepository.findOneBy({
         userEmail: credentials.email,
       });
@@ -82,7 +57,10 @@ export class AuthService {
         }),
       );
 
-      return { ...foundUser, token: token };
+      return {
+        ...foundUser,
+        token: token,
+      };
     } catch (error) {
       throw error;
     }
@@ -108,4 +86,33 @@ export class AuthService {
       throw error;
     }
   }
+
+  /**
+   * Further work on User CRUD services
+   * 
+  async register(user: UserDto) {
+    try {
+      const createdUser = await this.userService.createUser({
+        email: user.email,
+        firstName: user.firstName,
+      });
+
+      const hashedPassword = await hash(user.password, 7);
+      await this.usersAuthRepository.save(
+        new UserAuth({
+          userEmail: user.email,
+          password: hashedPassword,
+        }),
+      );
+
+      return {
+        id: createdUser.id,
+        email: createdUser.email,
+        firstName: createdUser.firstName,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  */
 }

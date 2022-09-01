@@ -1,6 +1,6 @@
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
-  id serial NOT NULL, 
+  id serial NOT NULL,
   email varchar(80) NOT NULL,
   first_name varchar(250) NOT NULL,
   PRIMARY KEY (email)
@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users_auth (
   PRIMARY KEY (user_email) --,
   /*
   CONSTRAINT fk_users
-      FOREIGN KEY(user_email) 
-        REFERENCES users(email)
+    FOREIGN KEY(user_email) 
+      REFERENCES users(email)
   */
 );
 
@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS users_token (
   PRIMARY KEY (user_email) --,
   /*
   CONSTRAINT fk_users
-      FOREIGN KEY(user_email) 
-        REFERENCES users(email)
+    FOREIGN KEY(user_email) 
+      REFERENCES users(email)
   */
 );
 
@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   PRIMARY KEY (id) --,
   /*
   CONSTRAINT fk_users
-      FOREIGN KEY(user_email) 
-        REFERENCES users(email)
+    FOREIGN KEY(user_email) 
+      REFERENCES users(email)
   */
 );
-
